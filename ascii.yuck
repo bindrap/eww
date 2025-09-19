@@ -1,0 +1,15 @@
+(defpoll ascii :interval "60s" "~/.config/eww/scripts/random_ascii.sh")
+
+(defwidget ascii-widget []
+  (box :orientation "vertical" :class "ascii-box"
+    (label :text ascii :wrap true)
+  )
+)
+
+(defwindow ascii-window
+  :geometry (geometry :x 1400 :y 700 :width 500 :height 300)
+  :stacking "bg"
+  :focusable false
+  :monitor 0
+  (ascii-widget)
+)

@@ -1,0 +1,9 @@
+(defwidget system-info []
+  (box :orientation "vertical" :spacing 8 :class "sysbox"
+    (label :text "🖥️  $(hostname)" :class "title")
+    (label :text "👤  $(whoami)" :class "info")
+    (label :text "🧠  RAM: $(free -h | awk '/Mem:/ {print $3 "/" $2}')" :class "info")
+    (label :text "💾  Disk: $(df -h / | awk 'NR==2 {print $3 "/" $2}')" :class "info")
+    (label :text "🕒  $(date '+%H:%M:%S')" :class "clock")
+  )
+)
