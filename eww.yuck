@@ -1,88 +1,121 @@
 ;; Decay Green Theme EWW Configuration
 ;; Updated for better aesthetics and functionality
 
-;; Polls for dynamic data
-(defpoll sysinfo :interval "5s" "~/.config/eww/scripts/sysinfo2.sh json")
+;; Polls for dynamic data - Optimized intervals
+(defpoll sysinfo :interval "3s" "~/.config/eww/scripts/sysinfo2.sh json")
 (defpoll weather :interval "600s" "~/.config/eww/scripts/weather.sh")
-(defpoll ascii :interval "60s" "~/.config/eww/scripts/random_ascii.sh")
+(defpoll ascii :interval "120s" "~/.config/eww/scripts/random_ascii.sh")
+(defpoll wallpaper_colors :interval "5s" "~/.config/eww/scripts/get_wallpaper_colors.sh")
+(deflisten cava_bars :initial "" "~/.config/eww/scripts/cava_visualizer.sh")
+(defpoll is_audio_playing :interval "2s" "~/.config/eww/scripts/is_audio_playing.sh")
 
 ;; Variables for system monitoring
 (defvar cpu_reveal false)
 (defvar mem_reveal false)
 (defvar disk_reveal false)
+(defvar sysinfo_expanded false)
 
-;; SHOW POPUP FAUX PAS 
+;; SHOW POPUP FAUX PAS
 (defvar show-popup false)
+(defvar power_menu_expanded false)
 
-;; Enhanced System Info Widget
+;; Collapsible System Info Widget with Hover Dropdown
 (defwidget sysinfo-widget []
-  (box :orientation "vertical" :class "widget-box" :space-evenly false
-    (label :text "󰌢 System Information" :class "header")
-    
-    ;; User & Host with hover effect
-    (eventbox :onhover "echo 'System: ${sysinfo.kernel}'"
-      (box :orientation "horizontal" :class "info-row"
-        (label :text "󰀄" :class "icon")
-        (label :text "${sysinfo.user}@${sysinfo.host}" :class "info-text")))
-    
-    ;; Uptime
-    (box :orientation "horizontal" :class "info-row"
-      (label :text "󰅐" :class "icon")
-      (label :text "Uptime: ${sysinfo.uptime}" :class "info-text"))
-    
-    ;; CPU with percentage-based styling
-    (eventbox :onhover "${EWW_CMD} update cpu_reveal=${!cpu_reveal}"
-      (box :orientation "horizontal" :class "info-row"
-        (label :text "󰻠" :class "icon")
+  (eventbox :onhover "${EWW_CMD} update sysinfo_expanded=true"
+            :onhoverlost "${EWW_CMD} update sysinfo_expanded=false"
+    (box :orientation "vertical" :class "widget-box sysinfo-collapsible animate-slide-in"
+         :space-evenly false
+      ;; Header - always visible
+      (label :text "󰌢 System Information" :class "header sysinfo-header")
+
+      ;; Expandable content
+      (revealer :reveal sysinfo_expanded :transition "slidedown" :duration "300ms"
         (box :orientation "vertical" :space-evenly false
-          (label :text "CPU: ${sysinfo.cpu.percentage}%" :class "info-text")
-          (revealer :reveal cpu_reveal :transition "slidedown"
-            (label :text "${sysinfo.cpu.model} • ${sysinfo.cpu.temperature}°C" 
-                   :class "info-text" :style "color: #76946a; font-size: 10px;")))))
-    
-    ;; Memory with visual indicator
-    (eventbox :onhover "${EWW_CMD} update mem_reveal=${!mem_reveal}"
-      (box :orientation "horizontal" :class "info-row"
-        (label :text "󰍛" :class "icon")
-        (box :orientation "vertical" :space-evenly false
-          (label :text "RAM: ${sysinfo.memory.percentage}%" :class "info-text")
-          (revealer :reveal mem_reveal :transition "slidedown"
-            (box :orientation "vertical"
-              (label :text "${sysinfo.memory.used}GB / ${sysinfo.memory.total}GB" 
-                     :class "info-text" :style "color: #76946a; font-size: 10px;")
-              (progress :class "progress-bar" 
-                       :value "${sysinfo.memory.percentage}" 
-                       :style "color: #98bb6c;"))))))
-    
-    ;; Disk usage
-    (eventbox :onhover "${EWW_CMD} update disk_reveal=${!disk_reveal}"
-      (box :orientation "horizontal" :class "info-row"
-        (label :text "󰋊" :class "icon")
-        (box :orientation "vertical" :space-evenly false
-          (label :text "Disk: ${sysinfo.disk.percentage}%" :class "info-text")
-          (revealer :reveal disk_reveal :transition "slidedown"
-            (box :orientation "vertical"
-              (label :text "${sysinfo.disk.used} / ${sysinfo.disk.total}" 
-                     :class "info-text" :style "color: #76946a; font-size: 10px;")
-              (progress :class "progress-bar" 
-                       :value "${sysinfo.disk.percentage}" 
-                       :style "color: #98bb6c;"))))))
-    
-    ;; Network with data transfer
-    (box :orientation "horizontal" :class "info-row"
-      (label :text "󰖩" :class "icon")
-      (label :text "Net: ↓${sysinfo.network.rx_mb}MB ↑${sysinfo.network.tx_mb}MB" :class "info-text"))
-    
-    ;; Battery (if available)
-    (revealer :reveal {sysinfo.battery.percentage > 0} :transition "slidedown"
-      (box :orientation "horizontal" :class "info-row"
-        (label :text {sysinfo.battery.percentage > 80 ? "󰁹" : 
-                     sysinfo.battery.percentage > 60 ? "󰂀" :
-                     sysinfo.battery.percentage > 40 ? "󰁿" :
-                     sysinfo.battery.percentage > 20 ? "󰁼" : "󰁺"} 
-               :class "icon")
-        (label :text "Battery: ${sysinfo.battery.percentage}% ${sysinfo.battery.status}" :class "info-text")))
-  ))
+          ;; User & Host with hover effect
+          (eventbox :onhover "echo 'System: ${sysinfo.kernel}'"
+            (box :orientation "horizontal" :class "info-row"
+              (label :text "󰀄" :class "icon")
+              (label :text "${sysinfo.user}@${sysinfo.host}" :class "info-text")))
+
+          ;; Uptime
+          (box :orientation "horizontal" :class "info-row"
+            (label :text "󰅐" :class "icon")
+            (label :text "Uptime: ${sysinfo.uptime}" :class "info-text"))
+
+          ;; CPU with percentage-based color coding
+          (eventbox :onhover "${EWW_CMD} update cpu_reveal=true"
+                    :onhoverlost "${EWW_CMD} update cpu_reveal=false"
+            (box :orientation "vertical" :class "info-row" :space-evenly false
+              (box :orientation "horizontal"
+                (label :text "󰻠" :class "icon"
+                       :style "color: ${sysinfo.cpu.percentage > 80 ? '#ff6b6b' :
+                                     sysinfo.cpu.percentage > 60 ? '#ffd580' : '#98bb6c'};")
+                (label :text "CPU: ${sysinfo.cpu.percentage}%" :class "info-text"
+                       :style "color: ${sysinfo.cpu.percentage > 80 ? '#ff6b6b' :
+                                     sysinfo.cpu.percentage > 60 ? '#ffd580' : '#98bb6c'};"))
+              (progress :class "progress-bar"
+                       :value "${sysinfo.cpu.percentage}")
+              (revealer :reveal cpu_reveal :transition "slidedown"
+                (label :text "${sysinfo.cpu.model} • ${sysinfo.cpu.temperature}°C"
+                       :class "info-text" :style "color: #9b8db8; font-size: 10px;"))))
+
+          ;; Memory with visual indicator and color coding
+          (eventbox :onhover "${EWW_CMD} update mem_reveal=true"
+                    :onhoverlost "${EWW_CMD} update mem_reveal=false"
+            (box :orientation "vertical" :class "info-row" :space-evenly false
+              (box :orientation "horizontal"
+                (label :text "󰍛" :class "icon"
+                       :style "color: ${sysinfo.memory.percentage > 80 ? '#ff6b6b' :
+                                     sysinfo.memory.percentage > 60 ? '#ffd580' : '#98bb6c'};")
+                (label :text "RAM: ${sysinfo.memory.percentage}%" :class "info-text"
+                       :style "color: ${sysinfo.memory.percentage > 80 ? '#ff6b6b' :
+                                     sysinfo.memory.percentage > 60 ? '#ffd580' : '#98bb6c'};"))
+              (progress :class "progress-bar"
+                       :value "${sysinfo.memory.percentage}")
+              (revealer :reveal mem_reveal :transition "slidedown"
+                (label :text "${sysinfo.memory.used}GB / ${sysinfo.memory.total}GB"
+                       :class "info-text" :style "color: #9b8db8; font-size: 10px;"))))
+
+          ;; Disk usage with color coding
+          (eventbox :onhover "${EWW_CMD} update disk_reveal=true"
+                    :onhoverlost "${EWW_CMD} update disk_reveal=false"
+            (box :orientation "vertical" :class "info-row" :space-evenly false
+              (box :orientation "horizontal"
+                (label :text "󰋊" :class "icon"
+                       :style "color: ${sysinfo.disk.percentage > 80 ? '#ff6b6b' :
+                                     sysinfo.disk.percentage > 60 ? '#ffd580' : '#98bb6c'};")
+                (label :text "Disk: ${sysinfo.disk.percentage}%" :class "info-text"
+                       :style "color: ${sysinfo.disk.percentage > 80 ? '#ff6b6b' :
+                                     sysinfo.disk.percentage > 60 ? '#ffd580' : '#98bb6c'};"))
+              (progress :class "progress-bar"
+                       :value "${sysinfo.disk.percentage}")
+              (revealer :reveal disk_reveal :transition "slidedown"
+                (label :text "${sysinfo.disk.used} / ${sysinfo.disk.total}"
+                       :class "info-text" :style "color: #9b8db8; font-size: 10px;"))))
+
+          ;; Network with data transfer
+          (box :orientation "horizontal" :class "info-row"
+            (label :text "󰖩" :class "icon")
+            (label :text "Net: ↓${sysinfo.network.rx_mb}MB ↑${sysinfo.network.tx_mb}MB" :class "info-text"))
+
+          ;; Battery (if available) with color coding
+          (revealer :reveal {sysinfo.battery.percentage > 0} :transition "slidedown"
+            (box :orientation "vertical" :class "info-row" :space-evenly false
+              (box :orientation "horizontal"
+                (label :text {sysinfo.battery.percentage > 80 ? "󰁹" :
+                             sysinfo.battery.percentage > 60 ? "󰂀" :
+                             sysinfo.battery.percentage > 40 ? "󰁿" :
+                             sysinfo.battery.percentage > 20 ? "󰁼" : "󰁺"}
+                       :class "icon"
+                       :style "color: ${sysinfo.battery.percentage < 20 ? '#ff6b6b' :
+                                     sysinfo.battery.percentage < 40 ? '#ffd580' : '#98bb6c'};")
+                (label :text "Battery: ${sysinfo.battery.percentage}% ${sysinfo.battery.status}"
+                       :class "info-text"
+                       :style "color: ${sysinfo.battery.percentage < 20 ? '#ff6b6b' : '#98bb6c'};"))
+              (progress :class "progress-bar"
+                       :value "${sysinfo.battery.percentage}")))
+        ))
+    )))
 
 ;; Enhanced Weather Widget
 (defwidget weather-widget []
@@ -92,11 +125,12 @@
       (label :text weather :class "info-text weather-text" :wrap true))
   ))
 
-;; Minimalist ASCII Art Widget
+;; Enhanced ASCII Art Widget
 (defwidget ascii-widget []
-  (box :orientation "vertical" :class "ascii-box"
+  (box :orientation "vertical" :class "ascii-box animate-slide-in"
     (scroll :height 350 :hscroll false :vscroll true
-      (label :text ascii :wrap false :class "ascii-text"))
+      (label :text ascii :wrap false :class "ascii-text"
+             :style "text-shadow: 0 0 10px rgba(160, 32, 240, 0.5);"))
   ))
 
 ;; Modern File Manager Button
@@ -124,18 +158,25 @@
            :image-height 280
            :style "border-radius: 8px;")))
 
-;; Enhanced Power Buttons
+;; Compact Power Menu with Hover Expansion
 (defwidget power-buttons []
-  (box :class "power-buttons" :orientation "horizontal" :space-evenly true
-    (eventbox :tooltip "Shutdown"
-      (button :onclick "systemctl poweroff" "󰐥"))
-    (eventbox :tooltip "Reboot"
-      (button :onclick "systemctl reboot" "󰜉"))
-    (eventbox :tooltip "Logout"
-      (button :onclick "hyprctl dispatch exit" "󰍃"))
-    (eventbox :tooltip "Lock Screen"
-      (button :onclick "loginctl lock-session" "󰍁"))
-  ))
+  (eventbox :onhover "${EWW_CMD} update power_menu_expanded=true"
+            :onhoverlost "${EWW_CMD} update power_menu_expanded=false"
+    (box :class "power-menu-compact" :orientation "horizontal" :space-evenly false :spacing 8
+      ;; Main power icon - always visible
+      (button :class "power-main-button" :onclick "systemctl poweroff" "󰐥")
+
+      ;; Expandable buttons
+      (revealer :reveal power_menu_expanded :transition "slideleft" :duration "250ms"
+        (box :class "power-buttons-expanded" :orientation "horizontal" :space-evenly false :spacing 6
+          (eventbox :tooltip "Reboot"
+            (button :onclick "systemctl reboot" :class "power-btn" "󰜉"))
+          (eventbox :tooltip "Logout"
+            (button :onclick "hyprctl dispatch exit" :class "power-btn" "󰍃"))
+          (eventbox :tooltip "Lock Screen"
+            (button :onclick "loginctl lock-session" :class "power-btn" "󰍁"))
+        ))
+    )))
 
 ;; System Info Window
 (defwindow sysinfo-window
@@ -155,7 +196,7 @@
 
 ;; ASCII Art Window
 (defwindow ascii-window
-  :geometry (geometry :x 1026 :y 70 :width 250 :height 500)
+  :geometry (geometry :x 1026 :y 100 :width 250 :height 500)
   :stacking "bg"
   :focusable false
   :monitor 0
@@ -166,23 +207,23 @@
 )
 
 (defwindow file-button-window
-  :geometry (geometry :x 5 :y 5 :width 60 :height 420)
+  :geometry (geometry :x 10 :y 10 :width 40 :height 450)
   :stacking "bg"
   :focusable false
   :monitor 0
-  (box :orientation "v" :space-evenly true :class "app-launcher-box"
+  (box :orientation "v" :space-evenly false :class "app-launcher-box" :spacing 10
     (eventbox :tooltip "File Manager"
-      (button :onclick "xdg-open ~" "󰉋"))
+      (button :onclick "xdg-open ~" :class "app-button" "󰉋"))
     (eventbox :tooltip "Google Chrome"
-      (button :onclick "google-chrome-stable" "󰖟"))
+      (button :onclick "google-chrome-stable" :class "app-button" "󰖟"))
     (eventbox :tooltip "Prism Launcher"
-      (button :onclick "/usr/bin/prismlauncher & disown" "󰍳"))
+      (button :onclick "/usr/bin/prismlauncher & disown" :class "app-button" "󰍳"))
     (eventbox :tooltip "Steam"
-      (button :onclick "steam" "󰓓"))
+      (button :onclick "steam" :class "app-button" "󰓓"))
     (eventbox :tooltip "Spotify"
-      (button :onclick "/usr/bin/spotify & disown" "󰓇"))
+      (button :onclick "/usr/bin/spotify & disown" :class "app-button" "󰓇"))
     (eventbox :tooltip "Discord"
-      (button :onclick "/usr/bin/discord & disown" "󰙯"))
+      (button :onclick "/usr/bin/discord & disown" :class "app-button" "󰙯"))
     (eventbox :tooltip "Music Player"
       (button :onclick "/usr/bin/kitty -e ncmpcpp & disown" ""))
   ))
@@ -203,12 +244,12 @@
   :monitor 0
   (radar-widget))
 
-;; Power Buttons Window
+;; Compact Power Menu Window - Bottom Left
 (defwindow power_widget
-  :visible true
   :monitor 0
   :stacking "bg"
-  :geometry (geometry :x 1055 :y 615 :width 220 :height 60)
+  :focusable false
+  :geometry (geometry :x "10px" :y "500px" :width "40px" :height "65px")
   (power-buttons))
 
 ;; Additional utility widgets you can add:
@@ -218,12 +259,12 @@
 (defpoll date :interval "1m" "date '+%A, %B %d'")
 
 (defwidget clock-widget []
-  (box :orientation "vertical" :class "widget-box"
-    (label :text time :class "info-text" :style "font-size: 20px; color: #98bb6c;")
-    (label :text date :class "info-text")))
+  (box :orientation "vertical" :class "clock-box animate-slide-in" :space-evenly false
+    (label :text time :class "time-text")
+    (label :text date :class "date-text")))
 
 (defwindow clock-window
-  :geometry (geometry :x 1080 :y 5 :width 150 :height 50)
+  :geometry (geometry :x 1605 :y 10 :width 300 :height 80)
   :stacking "bg"
   :focusable false
   :monitor 0
@@ -234,14 +275,23 @@
 (defpoll volume_muted :interval "1s" "pamixer --get-mute")
 
 (defwidget volume-widget []
-  (box :orientation "horizontal" :class "info-row"
-    (label :text {volume_muted == "true" ? "󰖁" : 
+  (box :orientation "horizontal" :class "volume-widget animate-slide-in" :space-evenly false
+    (label :text {volume_muted == "true" ? "󰖁" :
                  volume < 30 ? "󰕿" :
-                 volume < 70 ? "󰖀" : "󰕾"} 
-           :class "icon")
-    (scale :min 0 :max 100 :value volume
-           :onchange "pamixer --set-volume {}"
-           :style "margin: 0 10px;")))
+                 volume < 70 ? "󰖀" : "󰕾"}
+           :class "icon"
+           :style "font-size: 20px; margin-right: 12px;")
+    (box :orientation "vertical" :space-evenly false
+      (label :text "Volume: ${volume}%" :class "info-text" :style "font-size: 11px; margin-bottom: 4px;")
+      (scale :min 0 :max 100 :value volume
+             :onchange "pamixer --set-volume {}"))))
+
+(defwindow volume-window
+  :geometry (geometry :x 1026 :y 10 :width 220 :height 70)
+  :stacking "bg"
+  :focusable false
+  :monitor 0
+  (volume-widget))
 
 ;; Workspace indicator (for Hyprland)
 (defpoll workspaces :interval "1s" 
@@ -250,7 +300,7 @@
   "hyprctl activeworkspace -j | jq -r '.id'")
 
 (defwidget workspace-indicator []
-  (box :orientation "horizontal" :class "widget-box"
+  (box :orientation "horizontal" :class "workspace-box animate-slide-in" :space-evenly true
     (for ws in {split(workspaces, " ")}
       (button :onclick "hyprctl dispatch workspace ${ws}"
               :class {ws == active_workspace ? "workspace-active" : "workspace-inactive"}
@@ -258,15 +308,43 @@
 
 ;; Window to display workspace indicator
 (defwindow workspace-window
-  :geometry (geometry :x 600 :y 900 :width 200 :height 40)
+  :geometry (geometry :x 820 :y 1000 :width 280 :height 55)
   :stacking "bg"
   :focusable false
   :monitor 0
   (workspace-indicator))
 
+;; Music Player Widget
+(defpoll music_title :interval "2s" "mpc current -f '%title%' 2>/dev/null || echo 'No track'")
+(defpoll music_artist :interval "2s" "mpc current -f '%artist%' 2>/dev/null || echo 'Playing'")
+(defpoll music_status :interval "1s" "mpc status | grep -o 'playing\\|paused' || echo 'stopped'")
+(defpoll music_playing :interval "2s" "~/.config/eww/scripts/is_music_playing.sh")
+
+(defwidget music-player []
+  (revealer :reveal {music_playing == "true"} :transition "slidedown" :duration "500ms"
+    (box :orientation "vertical" :class "music-player animate-slide-in" :space-evenly false
+         :style wallpaper_colors
+      (label :text "󰎆 Music Player" :class "header")
+      (box :orientation "vertical" :space-evenly false
+        (label :text music_title :class "music-title" :limit-width 25 :wrap false)
+        (label :text music_artist :class "music-artist" :limit-width 25 :wrap false))
+      (box :orientation "horizontal" :class "music-controls" :space-evenly true :halign "center"
+        (button :onclick "mpc prev" :tooltip "Previous" "󰒮")
+        (button :onclick "mpc toggle" :tooltip {music_status == "playing" ? "Pause" : "Play"}
+                {music_status == "playing" ? "󰏤" : "󰐊"})
+        (button :onclick "mpc next" :tooltip "Next" "󰒭")
+        (button :onclick "mpc stop" :tooltip "Stop" "󰓛")))))
+
+(defwindow music-window
+  :geometry (geometry :x "38%" :y "70%" :width 280 :height 75)
+  :stacking "bg"
+  :focusable false
+  :monitor 0
+  (music-player))
+
 (defwindow launcher-window
   :monitor 0
-  :geometry (geometry :x 550 :y 100 :width 80 :height 200)
+  :geometry (geometry :x 600 :y 100 :width 80 :height 100)
   :stacking "bg"
   :focusable false
   (launcher))
@@ -288,3 +366,20 @@
            (button :label "  Chrome" :onclick "google-chrome-stable &") ;; chrome icon
            (button :label "  Steam" :onclick "steam &"))))) ;; steam icon
 
+
+;; CAVA Music Visualizer Widget
+(defwidget cava-visualizer []
+  (revealer :reveal {is_audio_playing == "true"} :transition "slideup" :duration "500ms"
+    (box :orientation "vertical" :class "cava-box animate-slide-in" :space-evenly false
+         :style wallpaper_colors
+      (label :text "󰝚 Music Visualizer" :class "header cava-header")
+      (box :orientation "vertical" :class "cava-bars-container" :valign "end"
+        (label :text cava_bars :class "cava-bars" :wrap false :valign "end")))))
+
+;; CAVA Visualizer Window - Moved up
+(defwindow cava-window
+  :geometry (geometry :x "35%" :y "25%" :width "30%" :height "240px")
+  :stacking "bg"
+  :focusable false
+  :monitor 0
+  (cava-visualizer))
