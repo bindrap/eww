@@ -1,5 +1,7 @@
 Look at latest screenshot of eww widgets in ~/Documents/Pictures/Screenshots
-
 to fix
-    - the power buttons are not working when clicked
-    - music visualizer and musioc player are still over lapping, show where this is so i can edit this myself and get it looking perfect 
+    - see latest Screenshots
+    - i want music visualizer to go from bottom of the model to the top of it near music visualizer title, 
+        - right now it only goes like 25% up 
+    - also the music visualizer should not appear when music or audio from browser played or from prism launcher when i play minecraft
+    - only from ncmpcpp and spotify 

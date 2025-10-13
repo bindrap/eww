@@ -249,7 +249,7 @@
   :monitor 0
   :stacking "bg"
   :focusable false
-  :geometry (geometry :x "10px" :y "500px" :width "40px" :height "65px")
+  :geometry (geometry :x "10px" :y "615px" :width "40px" :height "65px")
   (power-buttons))
 
 ;; Additional utility widgets you can add:
@@ -287,7 +287,7 @@
              :onchange "pamixer --set-volume {}"))))
 
 (defwindow volume-window
-  :geometry (geometry :x 1026 :y 10 :width 220 :height 70)
+  :geometry (geometry :x 1055 :y 10 :width 220 :height 70)
   :stacking "bg"
   :focusable false
   :monitor 0
@@ -372,7 +372,7 @@
   (revealer :reveal {is_audio_playing == "true"} :transition "slideup" :duration "500ms"
     (box :orientation "vertical" :class "cava-box animate-slide-in" :space-evenly false
          :style wallpaper_colors
-      (label :text "󰝚 Music Visualizer" :class "header cava-header")
+      (label :text "󰝚  Music Visualizer" :class "header cava-header")
       (box :orientation "vertical" :class "cava-bars-container" :valign "end"
         (label :text cava_bars :class "cava-bars" :wrap false :valign "end")))))
 
