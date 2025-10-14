@@ -275,16 +275,17 @@
 (defpoll volume_muted :interval "1s" "pamixer --get-mute")
 
 (defwidget volume-widget []
-  (box :orientation "horizontal" :class "volume-widget animate-slide-in" :space-evenly false
-    (label :text {volume_muted == "true" ? "󰖁" :
-                 volume < 30 ? "󰕿" :
-                 volume < 70 ? "󰖀" : "󰕾"}
-           :class "icon"
-           :style "font-size: 20px; margin-right: 12px;")
-    (box :orientation "vertical" :space-evenly false
-      (label :text "Volume: ${volume}%" :class "info-text" :style "font-size: 11px; margin-bottom: 4px;")
-      (scale :min 0 :max 100 :value volume
-             :onchange "pamixer --set-volume {}"))))
+  (revealer :reveal {is_audio_playing == "true"} :transition "slidedown" :duration "500ms"
+    (box :orientation "horizontal" :class "volume-widget animate-slide-in" :space-evenly false
+      (label :text {volume_muted == "true" ? "󰖁" :
+                   volume < 30 ? "󰕿" :
+                   volume < 70 ? "󰖀" : "󰕾"}
+             :class "icon"
+             :style "font-size: 20px; margin-right: 12px;")
+      (box :orientation "vertical" :space-evenly false
+        (label :text "Volume: ${volume}%" :class "info-text" :style "font-size: 11px; margin-bottom: 4px;")
+        (scale :min 0 :max 100 :value volume
+               :onchange "pamixer --set-volume {}")))))
 
 (defwindow volume-window
   :geometry (geometry :x 1055 :y 10 :width 220 :height 70)
@@ -369,7 +370,7 @@
 
 ;; CAVA Music Visualizer Widget
 (defwidget cava-visualizer []
-  (revealer :reveal {is_audio_playing == "true"} :transition "slideup" :duration "500ms"
+  (revealer :reveal {music_playing == "true"} :transition "slideup" :duration "500ms"
     (box :orientation "vertical" :class "cava-box animate-slide-in" :space-evenly false
          :style wallpaper_colors
       (label :text "󰝚  Music Visualizer" :class "header cava-header")

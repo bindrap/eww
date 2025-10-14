@@ -7,17 +7,17 @@
 }
 
 // Wallpaper-inspired color scheme (red tree/autumn theme)
-$bg-primary: rgba(16, 11, 32, 0.65);
+$bg-primary: rgba(18, 15, 22, 0.65);
 $bg-secondary: rgba(45, 25, 30, 0.7);       // Slightly lighter
 $bg-hover: rgba(60, 30, 40, 0.75);          // Hover state
 
-$accent-primary: #2B4970;
-$accent-secondary: #516A8F;
+$accent-primary: #CB4A5B;
+$accent-secondary: #A06BA1;
 $accent-green: #88dd77;                      // Keep green for good indicators
-$accent-purple: #A36E91;
+$accent-purple: #E478AE;
 $accent-red: #ff4455;                        // Pure red
 $accent-blue: #6699ff;                       // Cool blue contrast
-$accent-yellow: #718EAE;
+$accent-yellow: #BC9890;
 
 $text-primary: #ffddcc;                      // Warm light text
 $text-secondary: #ffccbb;                    // Warm secondary text
