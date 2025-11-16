@@ -19,12 +19,42 @@
 (defvar show-popup false)
 (defvar power_menu_expanded false)
 
+;; Position variables for draggable windows
+(defvar sysinfo_x 5)
+(defvar sysinfo_y 5)
+(defvar weather_x 950)
+(defvar weather_y 20)
+(defvar ascii_x 1026)
+(defvar ascii_y 100)
+(defvar clock_x 1605)
+(defvar clock_y 10)
+(defvar volume_x 1055)
+(defvar volume_y 10)
+(defvar music_x "38%")
+(defvar music_y "70%")
+(defvar cava_x "35%")
+(defvar cava_y "25%")
+(defvar radar_x 880)
+(defvar radar_y 480)
+
+;; Drag Handle Widget - Reusable component
+(defwidget drag-handle [window_prefix]
+  (eventbox :class "drag-handle"
+            :tooltip "Hold and drag to move"
+            :onhover "echo 'Drag to move' > /dev/null"
+    (button :class "drag-button"
+            :onclick "~/.config/eww/scripts/drag_window.sh ${window_prefix} & disown"
+            :onrightclick "~/.config/eww/scripts/stop_drag.sh ${window_prefix}"
+            "󰁃")))  ;; Drag icon
+
 ;; Collapsible System Info Widget with Hover Dropdown
 (defwidget sysinfo-widget []
   (eventbox :onhover "${EWW_CMD} update sysinfo_expanded=true"
             :onhoverlost "${EWW_CMD} update sysinfo_expanded=false"
     (box :orientation "vertical" :class "widget-box sysinfo-collapsible animate-slide-in"
          :space-evenly false
+      ;; Drag handle
+      (drag-handle :window_prefix "sysinfo")
       ;; Header - always visible
       (label :text "󰌢 System Information" :class "header sysinfo-header")
 
@@ -120,6 +150,7 @@
 ;; Enhanced Weather Widget
 (defwidget weather-widget []
   (box :orientation "vertical" :class "widget-box" :space-evenly false
+    (drag-handle :window_prefix "weather")
     (label :text "🌿 Weather • Windsor" :class "header")
     (scroll :height 200 :hscroll false :vscroll true
       (label :text weather :class "info-text weather-text" :wrap true))
@@ -128,6 +159,7 @@
 ;; Enhanced ASCII Art Widget
 (defwidget ascii-widget []
   (box :orientation "vertical" :class "ascii-box animate-slide-in"
+    (drag-handle :window_prefix "ascii")
     (scroll :height 350 :hscroll false :vscroll true
       (label :text ascii :wrap false :class "ascii-text"
              :style "text-shadow: 0 0 10px rgba(160, 32, 240, 0.5);"))
@@ -152,6 +184,7 @@
 ;; Rain Radar Widget
 (defwidget radar-widget []
   (box :orientation "vertical" :class "widget-box"
+    (drag-handle :window_prefix "radar")
     (label :text "📡 Rain Radar • Windsor" :class "header")
     (image :path "~/.config/eww/assets/radar.png"
            :image-width 280
@@ -180,7 +213,7 @@
 
 ;; System Info Window
 (defwindow sysinfo-window
-  :geometry (geometry :x 5 :y 5 :width 250 :height 200)
+  :geometry (geometry :x sysinfo_x :y sysinfo_y :width 250 :height 200)
   :stacking "bg"
   :focusable false
   :monitor 0
@@ -188,7 +221,7 @@
 
 ;; Weather Window
 (defwindow weather-window
-  :geometry (geometry :x 950 :y 20 :width 350 :height 250)
+  :geometry (geometry :x weather_x :y weather_y :width 350 :height 250)
   :stacking "bg"
   :focusable false
   :monitor 0
@@ -196,7 +229,7 @@
 
 ;; ASCII Art Window
 (defwindow ascii-window
-  :geometry (geometry :x 1026 :y 100 :width 250 :height 500)
+  :geometry (geometry :x ascii_x :y ascii_y :width 250 :height 500)
   :stacking "bg"
   :focusable false
   :monitor 0
@@ -238,7 +271,7 @@
 
 ;; Rain Radar Window
 (defwindow radar-window
-  :geometry (geometry :x 880 :y 480 :width 320 :height 350)
+  :geometry (geometry :x radar_x :y radar_y :width 320 :height 350)
   :stacking "bg"
   :focusable false
   :monitor 0
@@ -260,11 +293,12 @@
 
 (defwidget clock-widget []
   (box :orientation "vertical" :class "clock-box animate-slide-in" :space-evenly false
+    (drag-handle :window_prefix "clock")
     (label :text time :class "time-text")
     (label :text date :class "date-text")))
 
 (defwindow clock-window
-  :geometry (geometry :x 1605 :y 10 :width 300 :height 80)
+  :geometry (geometry :x clock_x :y clock_y :width 300 :height 80)
   :stacking "bg"
   :focusable false
   :monitor 0
@@ -277,6 +311,7 @@
 (defwidget volume-widget []
   (revealer :reveal {is_audio_playing == "true"} :transition "slidedown" :duration "500ms"
     (box :orientation "horizontal" :class "volume-widget animate-slide-in" :space-evenly false
+      (drag-handle :window_prefix "volume")
       (label :text {volume_muted == "true" ? "󰖁" :
                    volume < 30 ? "󰕿" :
                    volume < 70 ? "󰖀" : "󰕾"}
@@ -288,7 +323,7 @@
                :onchange "pamixer --set-volume {}")))))
 
 (defwindow volume-window
-  :geometry (geometry :x 1055 :y 10 :width 220 :height 70)
+  :geometry (geometry :x volume_x :y volume_y :width 220 :height 70)
   :stacking "bg"
   :focusable false
   :monitor 0
@@ -325,6 +360,7 @@
   (revealer :reveal {music_playing == "true"} :transition "slidedown" :duration "500ms"
     (box :orientation "vertical" :class "music-player animate-slide-in" :space-evenly false
          :style wallpaper_colors
+      (drag-handle :window_prefix "music")
       (label :text "󰎆 Music Player" :class "header")
       (box :orientation "vertical" :space-evenly false
         (label :text music_title :class "music-title" :limit-width 25 :wrap false)
@@ -337,7 +373,7 @@
         (button :onclick "mpc stop" :tooltip "Stop" "󰓛")))))
 
 (defwindow music-window
-  :geometry (geometry :x "38%" :y "70%" :width 280 :height 75)
+  :geometry (geometry :x music_x :y music_y :width 280 :height 75)
   :stacking "bg"
   :focusable false
   :monitor 0
@@ -373,13 +409,14 @@
   (revealer :reveal {music_playing == "true"} :transition "slideup" :duration "500ms"
     (box :orientation "vertical" :class "cava-box animate-slide-in" :space-evenly false
          :style wallpaper_colors
+      (drag-handle :window_prefix "cava")
       (label :text "󰝚  Music Visualizer" :class "header cava-header")
       (box :orientation "vertical" :class "cava-bars-container" :valign "end"
         (label :text cava_bars :class "cava-bars" :wrap false :valign "end")))))
 
 ;; CAVA Visualizer Window - Moved up
 (defwindow cava-window
-  :geometry (geometry :x "35%" :y "25%" :width "30%" :height "240px")
+  :geometry (geometry :x cava_x :y cava_y :width "30%" :height "240px")
   :stacking "bg"
   :focusable false
   :monitor 0
