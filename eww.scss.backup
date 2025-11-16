@@ -7,17 +7,17 @@
 }
 
 // Wallpaper-inspired color scheme (red tree/autumn theme)
-$bg-primary: rgba(18, 15, 22, 0.65);
+$bg-primary: rgba(63, 52, 82, 0.65);
 $bg-secondary: rgba(45, 25, 30, 0.7);       // Slightly lighter
 $bg-hover: rgba(60, 30, 40, 0.75);          // Hover state
 
-$accent-primary: #CB4A5B;
-$accent-secondary: #A06BA1;
+$accent-primary: #FDDB07;
+$accent-secondary: #6D588F;
 $accent-green: #88dd77;                      // Keep green for good indicators
-$accent-purple: #E478AE;
+$accent-purple: #9D74C4;
 $accent-red: #ff4455;                        // Pure red
 $accent-blue: #6699ff;                       // Cool blue contrast
-$accent-yellow: #BC9890;
+$accent-yellow: #CCB4BF;
 
 $text-primary: #ffddcc;                      // Warm light text
 $text-secondary: #ffccbb;                    // Warm secondary text
@@ -515,12 +515,12 @@ button {
 
 .cava-bars-container {
   padding: $spacing-md;
-  min-height: 100px;
+  min-height: 160px;
 }
 
 .cava-bars {
   font-family: $font-main;
-  font-size: 24px;
+  font-size: 48px;
   // Color and text-shadow will be set by wallpaper_colors inline style
 }
 
