@@ -525,41 +525,21 @@ button {
 }
 
 /* ========================================
-   DRAG HANDLE
+   DRAGGABLE WIDGETS
    ======================================== */
 
-.drag-handle {
-  cursor: move;
-  padding: $spacing-xs;
-  margin-bottom: $spacing-xs;
-  border-radius: $border-radius-sm;
+.draggable-widget {
+  cursor: pointer;
   transition: $transition-fast;
 
   &:hover {
-    background: rgba(152, 187, 108, 0.1);
-  }
-}
-
-.drag-button {
-  font-size: 14px;
-  min-width: 24px;
-  min-height: 24px;
-  padding: 2px;
-  background: rgba(152, 187, 108, 0.15);
-  border: 1px solid rgba(152, 187, 108, 0.25);
-  color: $accent-secondary;
-  cursor: grab;
-
-  &:hover {
-    background: rgba(152, 187, 108, 0.3);
-    border-color: rgba(152, 187, 108, 0.4);
-    color: $accent-green;
-    box-shadow: 0 2px 8px rgba(152, 187, 108, 0.3);
+    // Subtle hint that widget is draggable when 'd' key is held
+    box-shadow: 0 0 0 1px rgba(152, 187, 108, 0.2);
   }
 
   &:active {
-    cursor: grabbing;
-    box-shadow: 0 1px 4px rgba(152, 187, 108, 0.2);
+    // Visual feedback when clicking
+    opacity: 0.95;
   }
 }
 

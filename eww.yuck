@@ -37,24 +37,14 @@
 (defvar radar_x 880)
 (defvar radar_y 480)
 
-;; Drag Handle Widget - Reusable component
-(defwidget drag-handle [window_prefix]
-  (eventbox :class "drag-handle"
-            :tooltip "Hold and drag to move"
-            :onhover "echo 'Drag to move' > /dev/null"
-    (button :class "drag-button"
-            :onclick "~/.config/eww/scripts/drag_window.sh ${window_prefix} & disown"
-            :onrightclick "~/.config/eww/scripts/stop_drag.sh ${window_prefix}"
-            "󰁃")))  ;; Drag icon
-
 ;; Collapsible System Info Widget with Hover Dropdown
 (defwidget sysinfo-widget []
   (eventbox :onhover "${EWW_CMD} update sysinfo_expanded=true"
             :onhoverlost "${EWW_CMD} update sysinfo_expanded=false"
-    (box :orientation "vertical" :class "widget-box sysinfo-collapsible animate-slide-in"
+            :onclick "~/.config/eww/scripts/drag_with_key.sh sysinfo & disown"
+            :cursor "pointer"
+    (box :orientation "vertical" :class "widget-box sysinfo-collapsible animate-slide-in draggable-widget"
          :space-evenly false
-      ;; Drag handle
-      (drag-handle :window_prefix "sysinfo")
       ;; Header - always visible
       (label :text "󰌢 System Information" :class "header sysinfo-header")
 
@@ -149,21 +139,23 @@
 
 ;; Enhanced Weather Widget
 (defwidget weather-widget []
-  (box :orientation "vertical" :class "widget-box" :space-evenly false
-    (drag-handle :window_prefix "weather")
-    (label :text "🌿 Weather • Windsor" :class "header")
-    (scroll :height 200 :hscroll false :vscroll true
-      (label :text weather :class "info-text weather-text" :wrap true))
-  ))
+  (eventbox :onclick "~/.config/eww/scripts/drag_with_key.sh weather & disown"
+            :cursor "pointer"
+    (box :orientation "vertical" :class "widget-box draggable-widget" :space-evenly false
+      (label :text "🌿 Weather • Windsor" :class "header")
+      (scroll :height 200 :hscroll false :vscroll true
+        (label :text weather :class "info-text weather-text" :wrap true))
+    )))
 
 ;; Enhanced ASCII Art Widget
 (defwidget ascii-widget []
-  (box :orientation "vertical" :class "ascii-box animate-slide-in"
-    (drag-handle :window_prefix "ascii")
-    (scroll :height 350 :hscroll false :vscroll true
-      (label :text ascii :wrap false :class "ascii-text"
-             :style "text-shadow: 0 0 10px rgba(160, 32, 240, 0.5);"))
-  ))
+  (eventbox :onclick "~/.config/eww/scripts/drag_with_key.sh ascii & disown"
+            :cursor "pointer"
+    (box :orientation "vertical" :class "ascii-box animate-slide-in draggable-widget"
+      (scroll :height 350 :hscroll false :vscroll true
+        (label :text ascii :wrap false :class "ascii-text"
+               :style "text-shadow: 0 0 10px rgba(160, 32, 240, 0.5);"))
+    )))
 
 ;; Modern File Manager Button
 (defwidget file-manager-button []
@@ -183,13 +175,14 @@
 
 ;; Rain Radar Widget
 (defwidget radar-widget []
-  (box :orientation "vertical" :class "widget-box"
-    (drag-handle :window_prefix "radar")
-    (label :text "📡 Rain Radar • Windsor" :class "header")
-    (image :path "~/.config/eww/assets/radar.png"
-           :image-width 280
-           :image-height 280
-           :style "border-radius: 8px;")))
+  (eventbox :onclick "~/.config/eww/scripts/drag_with_key.sh radar & disown"
+            :cursor "pointer"
+    (box :orientation "vertical" :class "widget-box draggable-widget"
+      (label :text "📡 Rain Radar • Windsor" :class "header")
+      (image :path "~/.config/eww/assets/radar.png"
+             :image-width 280
+             :image-height 280
+             :style "border-radius: 8px;"))))
 
 ;; Compact Power Menu with Hover Expansion
 (defwidget power-buttons []
@@ -292,10 +285,11 @@
 (defpoll date :interval "1m" "date '+%A, %B %d'")
 
 (defwidget clock-widget []
-  (box :orientation "vertical" :class "clock-box animate-slide-in" :space-evenly false
-    (drag-handle :window_prefix "clock")
-    (label :text time :class "time-text")
-    (label :text date :class "date-text")))
+  (eventbox :onclick "~/.config/eww/scripts/drag_with_key.sh clock & disown"
+            :cursor "pointer"
+    (box :orientation "vertical" :class "clock-box animate-slide-in draggable-widget" :space-evenly false
+      (label :text time :class "time-text")
+      (label :text date :class "date-text"))))
 
 (defwindow clock-window
   :geometry (geometry :x clock_x :y clock_y :width 300 :height 80)
@@ -310,17 +304,18 @@
 
 (defwidget volume-widget []
   (revealer :reveal {is_audio_playing == "true"} :transition "slidedown" :duration "500ms"
-    (box :orientation "horizontal" :class "volume-widget animate-slide-in" :space-evenly false
-      (drag-handle :window_prefix "volume")
-      (label :text {volume_muted == "true" ? "󰖁" :
-                   volume < 30 ? "󰕿" :
-                   volume < 70 ? "󰖀" : "󰕾"}
-             :class "icon"
-             :style "font-size: 20px; margin-right: 12px;")
-      (box :orientation "vertical" :space-evenly false
-        (label :text "Volume: ${volume}%" :class "info-text" :style "font-size: 11px; margin-bottom: 4px;")
-        (scale :min 0 :max 100 :value volume
-               :onchange "pamixer --set-volume {}")))))
+    (eventbox :onclick "~/.config/eww/scripts/drag_with_key.sh volume & disown"
+              :cursor "pointer"
+      (box :orientation "horizontal" :class "volume-widget animate-slide-in draggable-widget" :space-evenly false
+        (label :text {volume_muted == "true" ? "󰖁" :
+                     volume < 30 ? "󰕿" :
+                     volume < 70 ? "󰖀" : "󰕾"}
+               :class "icon"
+               :style "font-size: 20px; margin-right: 12px;")
+        (box :orientation "vertical" :space-evenly false
+          (label :text "Volume: ${volume}%" :class "info-text" :style "font-size: 11px; margin-bottom: 4px;")
+          (scale :min 0 :max 100 :value volume
+                 :onchange "pamixer --set-volume {}"))))))
 
 (defwindow volume-window
   :geometry (geometry :x volume_x :y volume_y :width 220 :height 70)
@@ -358,19 +353,20 @@
 
 (defwidget music-player []
   (revealer :reveal {music_playing == "true"} :transition "slidedown" :duration "500ms"
-    (box :orientation "vertical" :class "music-player animate-slide-in" :space-evenly false
-         :style wallpaper_colors
-      (drag-handle :window_prefix "music")
-      (label :text "󰎆 Music Player" :class "header")
-      (box :orientation "vertical" :space-evenly false
-        (label :text music_title :class "music-title" :limit-width 25 :wrap false)
-        (label :text music_artist :class "music-artist" :limit-width 25 :wrap false))
-      (box :orientation "horizontal" :class "music-controls" :space-evenly true :halign "center"
-        (button :onclick "mpc prev" :tooltip "Previous" "󰒮")
-        (button :onclick "mpc toggle" :tooltip {music_status == "playing" ? "Pause" : "Play"}
-                {music_status == "playing" ? "󰏤" : "󰐊"})
-        (button :onclick "mpc next" :tooltip "Next" "󰒭")
-        (button :onclick "mpc stop" :tooltip "Stop" "󰓛")))))
+    (eventbox :onclick "~/.config/eww/scripts/drag_with_key.sh music & disown"
+              :cursor "pointer"
+      (box :orientation "vertical" :class "music-player animate-slide-in draggable-widget" :space-evenly false
+           :style wallpaper_colors
+        (label :text "󰎆 Music Player" :class "header")
+        (box :orientation "vertical" :space-evenly false
+          (label :text music_title :class "music-title" :limit-width 25 :wrap false)
+          (label :text music_artist :class "music-artist" :limit-width 25 :wrap false))
+        (box :orientation "horizontal" :class "music-controls" :space-evenly true :halign "center"
+          (button :onclick "mpc prev" :tooltip "Previous" "󰒮")
+          (button :onclick "mpc toggle" :tooltip {music_status == "playing" ? "Pause" : "Play"}
+                  {music_status == "playing" ? "󰏤" : "󰐊"})
+          (button :onclick "mpc next" :tooltip "Next" "󰒭")
+          (button :onclick "mpc stop" :tooltip "Stop" "󰓛"))))))
 
 (defwindow music-window
   :geometry (geometry :x music_x :y music_y :width 280 :height 75)
@@ -407,12 +403,13 @@
 ;; CAVA Music Visualizer Widget
 (defwidget cava-visualizer []
   (revealer :reveal {music_playing == "true"} :transition "slideup" :duration "500ms"
-    (box :orientation "vertical" :class "cava-box animate-slide-in" :space-evenly false
-         :style wallpaper_colors
-      (drag-handle :window_prefix "cava")
-      (label :text "󰝚  Music Visualizer" :class "header cava-header")
-      (box :orientation "vertical" :class "cava-bars-container" :valign "end"
-        (label :text cava_bars :class "cava-bars" :wrap false :valign "end")))))
+    (eventbox :onclick "~/.config/eww/scripts/drag_with_key.sh cava & disown"
+              :cursor "pointer"
+      (box :orientation "vertical" :class "cava-box animate-slide-in draggable-widget" :space-evenly false
+           :style wallpaper_colors
+        (label :text "󰝚  Music Visualizer" :class "header cava-header")
+        (box :orientation "vertical" :class "cava-bars-container" :valign "end"
+          (label :text cava_bars :class "cava-bars" :wrap false :valign "end"))))))
 
 ;; CAVA Visualizer Window - Moved up
 (defwindow cava-window

@@ -6,8 +6,17 @@ EWW_CONFIG_DIR="$HOME/.config/eww"
 # Kill existing EWW processes
 killall eww 2>/dev/null || true
 
+# Kill existing keyboard monitor
+pkill -f monitor_dkey.sh 2>/dev/null || true
+
 # Wait a moment
 sleep 1
+
+# Start keyboard monitor in background for drag functionality
+# This monitors the 'd' key for drag-and-drop
+"$EWW_CONFIG_DIR/scripts/monitor_dkey.sh" &
+MONITOR_PID=$!
+echo "Keyboard monitor started (PID: $MONITOR_PID)"
 
 # Start EWW daemon
 eww daemon &
