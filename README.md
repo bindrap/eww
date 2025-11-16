@@ -45,6 +45,40 @@ A beautiful, dynamic widget setup for EWW (Elkowar's Wacky Widgets) that automat
 - **Clock**: Time and date display
 - **App Launcher**: Quick access to favorite applications
 
+## 🚀 Quick Installation
+
+### One-Line Install (Automated)
+
+For a fully automated installation that handles all dependencies and configuration:
+
+```bash
+cd /path/to/this/repo && chmod +x install.sh && ./install.sh
+```
+
+Or clone and install in one go:
+
+```bash
+git clone https://github.com/yourusername/eww-widgets.git ~/.config/eww-temp && cd ~/.config/eww-temp && ./install.sh
+```
+
+The installer will:
+- ✅ Detect your Linux distribution
+- ✅ Install all dependencies (EWW, ImageMagick, CAVA, inotify-tools, etc.)
+- ✅ Compile EWW from source if needed
+- ✅ Configure CAVA for optimal music visualization
+- ✅ Copy all widget files to `~/.config/eww/`
+- ✅ Extract colors from your current wallpaper
+- ✅ Optionally configure Hyprland auto-start
+- ✅ Start the widgets
+
+**See [INSTALL.md](INSTALL.md) for more installation options and troubleshooting.**
+
+### Manual Installation
+
+For manual installation instructions, see the detailed setup guide below.
+
+---
+
 ## File Structure
 
 ```
