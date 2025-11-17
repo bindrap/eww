@@ -18,6 +18,7 @@
 ;; SHOW POPUP FAUX PAS
 (defvar show-popup false)
 (defvar power_menu_expanded false)
+(defvar note_menu_expanded false)
 
 ;; Collapsible System Info Widget with Hover Dropdown
 (defwidget sysinfo-widget []
@@ -158,6 +159,26 @@
            :image-height 280
            :style "border-radius: 8px;")))
 
+;; Compact Note Menu with Hover Expansion
+(defwidget note-buttons []
+  (eventbox :onhover "${EWW_CMD} update note_menu_expanded=true"
+            :onhoverlost "${EWW_CMD} update note_menu_expanded=false"
+    (box :class "note-menu-compact" :orientation "horizontal" :space-evenly false :spacing 8
+      ;; Main note icon - always visible
+      (button :class "note-main-button" :onclick "nautilus ~/Documents/Notes" "󰠮")
+
+      ;; Expandable buttons
+      (revealer :reveal note_menu_expanded :transition "slideleft" :duration "250ms"
+        (box :class "note-buttons-expanded" :orientation "horizontal" :space-evenly false :spacing 6
+          (eventbox :tooltip "Pull from Nextcloud"
+            (button :onclick "/usr/bin/kitty --title 'Notes Pull - Nextcloud' --hold ~/.config/eww/scripts/sync_pull_nextcloud.sh & disown" :class "note-btn" "󱇧"))
+          (eventbox :tooltip "Pull from Google Drive"
+            (button :onclick "/usr/bin/kitty --title 'Notes Pull - Google' --hold ~/.config/eww/scripts/sync_pull_google.sh & disown" :class "note-btn" "󰊫"))
+          (eventbox :tooltip "Push to Both (Google + Nextcloud)"
+            (button :onclick "/usr/bin/kitty --title 'Notes Push - Both Services' --hold ~/.config/eww/scripts/sync_push.sh & disown" :class "note-btn" "󰤌"))
+        ))
+    )))
+
 ;; Compact Power Menu with Hover Expansion
 (defwidget power-buttons []
   (eventbox :onhover "${EWW_CMD} update power_menu_expanded=true"
@@ -243,6 +264,14 @@
   :focusable false
   :monitor 0
   (radar-widget))
+
+;; Compact Note Menu Window - Bottom Left (above power button)
+(defwindow note_widget
+  :monitor 0
+  :stacking "bg"
+  :focusable false
+  :geometry (geometry :x "10px" :y "545px" :width "40px" :height "65px")
+  (note-buttons))
 
 ;; Compact Power Menu Window - Bottom Left
 (defwindow power_widget

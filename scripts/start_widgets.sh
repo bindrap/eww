@@ -30,8 +30,14 @@ eww open ascii-window
 #eww open file-button-window
 #eww open youtube-window
 #eww open radar-window
+eww open note_widget
 eww open power_widget
 #eww open clock-window
 eww open workspace-window
+
+# Music-related widgets
+eww open volume-window
+eww open music-window
+eww open cava-window
 
 echo "EWW widgets started!"
