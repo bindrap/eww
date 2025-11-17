@@ -7,17 +7,17 @@
 }
 
 // Wallpaper-inspired color scheme (red tree/autumn theme)
-$bg-primary: rgba(63, 52, 82, 0.65);
+$bg-primary: rgba(29, 19, 43, 0.65);
 $bg-secondary: rgba(45, 25, 30, 0.7);       // Slightly lighter
 $bg-hover: rgba(60, 30, 40, 0.75);          // Hover state
 
-$accent-primary: #FDDB07;
-$accent-secondary: #6D588F;
+$accent-primary: #604E56;
+$accent-secondary: #F5F422;
 $accent-green: #88dd77;                      // Keep green for good indicators
-$accent-purple: #9D74C4;
+$accent-purple: #C7B14B;
 $accent-red: #ff4455;                        // Pure red
 $accent-blue: #6699ff;                       // Cool blue contrast
-$accent-yellow: #CCB4BF;
+$accent-yellow: #6D6492;
 
 $text-primary: #ffddcc;                      // Warm light text
 $text-secondary: #ffccbb;                    // Warm secondary text
@@ -238,19 +238,66 @@ button {
   }
 }
 
+// NOTE BUTTON STYLING
+.note-main-button {
+  font-size: 20px;
+  min-width: 35px;
+  min-height: 35px;
+  background: rgba(102, 153, 255, 0.15);
+  border-color: rgba(102, 153, 255, 0.3);
+  color: $accent-blue;
+
+  &:hover {
+    background: rgba(102, 153, 255, 0.25);
+    border-color: rgba(102, 153, 255, 0.5);
+    color: lighten($accent-blue, 10%);
+    box-shadow: 0 4px 16px rgba(102, 153, 255, 0.4);
+  }
+}
+
+.note-buttons-expanded {
+  .note-btn {
+    font-size: 18px;
+    min-width: 35px;
+    min-height: 35px;
+    transition: $transition-fast;
+
+    &:nth-child(1):hover { // Nextcloud
+      color: $accent-blue;
+      background: rgba(137, 180, 250, 0.2);
+      border-color: rgba(137, 180, 250, 0.4);
+      box-shadow: 0 4px 12px rgba(137, 180, 250, 0.3);
+    }
+
+    &:nth-child(2):hover { // Google Drive
+      color: $accent-yellow;
+      background: rgba(255, 213, 128, 0.2);
+      border-color: rgba(255, 213, 128, 0.4);
+      box-shadow: 0 4px 12px rgba(255, 213, 128, 0.3);
+    }
+
+    &:nth-child(3):hover { // Push to Both
+      color: $accent-purple;
+      background: rgba(199, 177, 75, 0.2);
+      border-color: rgba(199, 177, 75, 0.4);
+      box-shadow: 0 4px 12px rgba(199, 177, 75, 0.3);
+    }
+  }
+}
+
 .power-main-button {
   font-size: 20px;
   min-width: 35px;
   min-height: 35px;
-  background: rgba(255, 107, 138, 0.15);
-  border-color: rgba(255, 107, 138, 0.3);
-  color: $accent-primary;
+  background: rgba(255, 68, 85, 0.15);
+  border-color: rgba(255, 68, 85, 0.3);
+  color: $accent-red;
 
   &:hover {
-    background: rgba(255, 107, 138, 0.25);
-    border-color: rgba(255, 107, 138, 0.5);
-    color: lighten($accent-primary, 10%);
-    box-shadow: 0 4px 16px rgba(255, 107, 138, 0.4);
+    background: rgba(255, 68, 85, 0.25);
+    border-color: rgba(255, 68, 85, 0.5);
+    color: lighten($accent-red, 10%);
+    box-shadow: 0 4px 16px rgba(255, 68, 85, 0.4);
   }
 }
 
