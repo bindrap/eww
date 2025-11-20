@@ -1,6 +1,6 @@
 # Quick Installation Guide
 
-## One-Line Installation
+## One-Line Installation (Bulletproof Edition)
 
 ### If you have the repository cloned:
 
@@ -19,6 +19,20 @@ Or using wget:
 ```bash
 wget -qO- https://raw.githubusercontent.com/yourusername/eww/main/install.sh | bash
 ```
+
+## What Makes This Bulletproof?
+
+This enhanced installation script includes:
+
+- **Pre-flight System Checks**: Validates your environment before installation
+- **Automatic Rollback**: Reverts changes if installation fails
+- **Network Retry Logic**: Automatically retries failed downloads (up to 5 attempts with exponential backoff)
+- **Comprehensive Error Handling**: Gracefully handles edge cases and provides helpful error messages
+- **Installation Logging**: Detailed logs for troubleshooting (`/tmp/eww-install-*.log`)
+- **Safe Backups**: Automatically backs up existing configurations with rollback capability
+- **Dependency Verification**: Ensures all critical packages are installed correctly
+- **Multiple Shell Support**: Automatically configures PATH for bash, zsh, and fish
+- **Enhanced Arch Linux Support**: Detects and uses AUR helpers (yay/paru) when available
 
 ## What the installer does:
 
