@@ -27,24 +27,24 @@ HYPR_CONFIG="$HOME/.config/hypr/hyprland.conf"
 
 # Print functions
 print_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    echo -e "${BLUE}[INFO]${NC} ${1:-}"
 }
 
 print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    echo -e "${GREEN}[SUCCESS]${NC} ${1:-}"
 }
 
 print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo -e "${YELLOW}[WARNING]${NC} ${1:-}"
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${RED}[ERROR]${NC} ${1:-}"
 }
 
 print_header() {
     echo -e "\n${BLUE}=====================================${NC}"
-    echo -e "${BLUE}$1${NC}"
+    echo -e "${BLUE}${1:-}${NC}"
     echo -e "${BLUE}=====================================${NC}\n"
 }
 
@@ -55,8 +55,8 @@ log() {
 
 # Add rollback action
 add_rollback() {
-    ROLLBACK_ACTIONS+=("$1")
-    log "Added rollback action: $1"
+    ROLLBACK_ACTIONS+=("${1:-}")
+    log "Added rollback action: ${1:-}"
 }
 
 # Execute rollback
@@ -85,8 +85,8 @@ trap cleanup EXIT
 
 # Check for required commands
 require_command() {
-    if ! command -v "$1" &>/dev/null; then
-        print_error "Required command not found: $1"
+    if ! command -v "${1:-}" &>/dev/null; then
+        print_error "Required command not found: ${1:-}"
         return 1
     fi
     return 0
@@ -152,7 +152,7 @@ check_disk_space() {
 
 # Verify package installation
 verify_package() {
-    local package=$1
+    local package=${1:-}
     if command -v "$package" &>/dev/null; then
         print_success "✓ $package installed"
         return 0
@@ -164,7 +164,7 @@ verify_package() {
 
 # Safe backup function
 safe_backup() {
-    local target=$1
+    local target=${1:-}
     if [ -e "$target" ]; then
         local backup="${target}.backup.$(date +%Y%m%d_%H%M%S)"
         cp -r "$target" "$backup" || return 1
