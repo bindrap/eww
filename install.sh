@@ -9,7 +9,13 @@ set -o pipefail  # Fail on pipe errors
 set -u           # Fail on undefined variables
 
 # Installation state tracking
-INSTALL_LOG="/tmp/eww-install-$(date +%s).log"
+INSTALL_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/eww"
+mkdir -p "$INSTALL_CACHE_DIR" || {
+    echo "[ERROR] Failed to create install cache directory at $INSTALL_CACHE_DIR" >&2
+    exit 1
+}
+
+INSTALL_LOG="$INSTALL_CACHE_DIR/install-$(date +%s).log"
 ROLLBACK_ACTIONS=()
 INSTALL_STATE="STARTED"
 
@@ -51,6 +57,34 @@ print_header() {
 # Logging function
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$INSTALL_LOG"
+}
+
+# Pacman helpers (Arch family)
+wait_for_pacman() {
+    local lock_file="/var/lib/pacman/db.lck"
+    local waited=0
+    local max_wait=60
+
+    if [ -f "$lock_file" ]; then
+        print_info "Waiting for pacman lock to clear..."
+    fi
+
+    while [ -f "$lock_file" ]; do
+        sleep 1
+        ((waited++))
+        if (( waited >= max_wait )); then
+            print_error "pacman database lock present for over ${max_wait}s"
+            print_info "If no package operation is running, remove $lock_file manually and rerun."
+            return 1
+        fi
+    done
+
+    return 0
+}
+
+pacman_safe() {
+    wait_for_pacman || return 1
+    sudo pacman "$@"
 }
 
 # Add rollback action
@@ -304,7 +338,7 @@ install_dependencies() {
     case $DISTRO in
         arch|manjaro|endeavouros|artix|garuda)
             print_info "Updating package database..."
-            if ! retry_command sudo pacman -Sy; then
+            if ! retry_command pacman_safe -Sy; then
                 print_error "Failed to sync package database"
                 return 1
             fi
@@ -328,17 +362,18 @@ install_dependencies() {
                 pango
                 gdk-pixbuf2
                 libdbusmenu-gtk3
+                pkgconf
                 base-devel
             )
 
             local failed_packages=()
 
             # Try to install packages with retry logic
-            if ! retry_command sudo pacman -S --needed --noconfirm "${packages[@]}"; then
+            if ! retry_command pacman_safe -S --needed --noconfirm "${packages[@]}"; then
                 print_warning "Batch installation failed, trying individual packages..."
 
                 for pkg in "${packages[@]}"; do
-                    if ! sudo pacman -S --needed --noconfirm "$pkg" 2>/dev/null; then
+                    if ! pacman_safe -S --needed --noconfirm "$pkg" 2>/dev/null; then
                         failed_packages+=("$pkg")
                         print_warning "Failed to install: $pkg"
                     fi
@@ -483,8 +518,24 @@ install_eww_from_source() {
 
     # Create temp directory
     local TMP_DIR
-    TMP_DIR=$(mktemp -d) || {
-        print_error "Failed to create temp directory"
+    local TMP_BASE="${XDG_CACHE_HOME:-$HOME/.cache}/eww-build"
+
+    # Use user cache directory instead of /tmp to avoid quota issues
+    if ! mkdir -p "$TMP_BASE"; then
+        print_error "Failed to create build cache directory at $TMP_BASE"
+        return 1
+    fi
+
+    TMP_DIR=$(mktemp -d -p "$TMP_BASE" eww-XXXX) || {
+        print_error "Failed to create temp directory in $TMP_BASE"
+        return 1
+    }
+
+    # Keep builds out of /tmp to avoid quota issues and reuse cache space
+    export CARGO_TARGET_DIR="$TMP_DIR/target"
+    export TMPDIR="$TMP_DIR/tmp"
+    mkdir -p "$CARGO_TARGET_DIR" "$TMPDIR" || {
+        print_error "Failed to prepare build directories under $TMP_DIR"
         return 1
     }
 
