@@ -726,11 +726,20 @@ install_widgets() {
     }
 
     # Determine source directory (either current dir or use current git repo)
-    local SOURCE_DIR
+    local SOURCE_DIR="${SOURCE_DIR:-}"
     local CLEANUP_SOURCE=false
 
+    # If SOURCE_DIR environment variable is provided, respect it first
+    if [ -n "$SOURCE_DIR" ]; then
+        if [ -f "$SOURCE_DIR/eww.yuck" ] && [ -f "$SOURCE_DIR/eww.scss" ]; then
+            print_info "Using SOURCE_DIR from environment: $SOURCE_DIR"
+        else
+            print_error "SOURCE_DIR is set but widget files were not found at: $SOURCE_DIR"
+            print_info "Ensure the path contains eww.yuck and eww.scss"
+            return 1
+        fi
     # Check if we're in the eww repo directory
-    if [ -f "eww.yuck" ] && [ -f "eww.scss" ]; then
+    elif [ -f "eww.yuck" ] && [ -f "eww.scss" ]; then
         SOURCE_DIR="$(pwd)"
         print_info "Using current directory as source: $SOURCE_DIR"
     else
